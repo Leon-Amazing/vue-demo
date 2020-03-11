@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        table{
+            width: 100%;
+            border: 1px solid;
+            border-collapse:collapse;
+            margin: 0 auto;
+        }
+        th,td{
+            border: 1px solid;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">  
+        <table>
+            <thead>
+                <tr>
+                  <th>中文名</th>
+                  <th>英文名</th>
+                  <th>ID</th>
+                  <th>email</th>
+                  <th>等级</th>
+                  <th>AMD/CMD/UMD</th>
+                  <th>图片</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in list">
+                  <td>{{item.cname}}</td>
+                  <td>{{item.ename}}</td>
+                  <td>{{item.id}}</td>
+                  <td>{{item.email}}</td>
+                  <td>{{item.string}}</td>
+                  <td>{{item.array}}</td>
+                  <td>
+                      <img :src="item.image">
+                  </td>
+              </tr>
+            </tbody>      
+          </table> 
+   </div>
+</body>
+<script src="./vue.js"></script>
+<script src="./axios.min.js"></script>
+<script>
+
+    new Vue({
+        el:"#app",
+        data:{
+            list:[]
+        },
+        created() {
+            axios.get("https://www.studyinghome.com/mock/5e61ad4b597ac8103c47618a/data/get")
+            .then(res=>{
+                this.list = res.data.data.list
+            })
+        },
+    })
+
+
+</script>
+</html>

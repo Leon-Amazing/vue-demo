@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        li{
+            list-style:none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="value">
+        <button type="button" v-on:click="send">发表</button>
+        <ul>
+          <li v-for="(item,i) in list">
+            {{i+1}}---
+            <span v-bind:contenteditable='item.isEdit'>{{item.value}}</span>
+            <button type="button" v-on:click="up(i)">上移</button>
+            <button type="button" v-on:click="down(i)">下移</button>
+            <button type="button" v-on:click="del(i)">删除</button>
+            <button type="button" @dblclick="edit(i)">编辑</button>
+          </li>
+        </ul>
+    </div>
+</body>
+<script src="vue.js"></script>
+<script>
+    const vm = new Vue({
+        el:'#app',
+        data:{
+            value:'',
+            list:[],
+            isEdit: false
+        },
+        methods: {
+            send() {
+                if(this.value) {
+                    this.list.push({
+                        value: this.value,
+                        isEdit: this.isEdit
+                    })
+                }
+                this.value = ''
+            },
+            up(index) {
+                if(index>0){
+                    this.list.splice(index,0,this.list.splice(index-1,1)[0])
+                }
+            },
+            down(index) {
+                if(index<this.list.length-1){
+                    this.list.splice(index+1,0,this.list.splice(index,1)[0])
+                }
+            },
+            del(index) {
+                this.list.splice(index,1)
+            },
+            edit(index) {
+                this.list[index].isEdit = !this.list[index].isEdit
+            }
+        }
+    })
+</script>
+</html>

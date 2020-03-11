@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    // document.cookie = 'name = leon';
+    // document.cookie = 'sex = 男';
+    // document.cookie = 'age = 18';
+    // setCookie('王','小',1);
+    function setCookie(name, value, day){
+        let d = new Date();
+        let time = d.getTime();
+        d.setTime(time + day*24*60*60*1000);
+        document.cookie = name + '=' + 'value' + ';expires=' + d.toUTCString()
+    }
+
+    // delCookie('王');
+    function delCookie(name){
+        let d = new Date();
+        let time = d.getTime();
+        d.setTime(time + (-1*24*60*60*1000));
+        document.cookie = name + '=' + 'value' + ';expires=' + d.toUTCString()
+    }
+
+    // getCookie('name');
+    function getCookie(name){
+        let arr = document.cookie.split('; ');
+        let res;
+        arr.forEach(item=>{
+            if(item.split('=').indexOf(name)!==-1){
+                res = item.split('=')[1];
+            }
+        })
+        return res;
+    }
+</script>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="page-top">
+    <div class="page-content">
+      <h2>任务计划列表</h2>
+    </div>
+  </div>
+  <div class="main">
+    <h3 class="big-title">添加任务：</h3>
+    <input
+      placeholder="例如：吃饭睡觉打豆豆；    提示：+回车即可添加任务"
+      class="task-input"
+      type="text"
+      v-model="todo"
+      v-on:keyup.13="onSend"
+    />
+    <ul class="task-count" v-if="list.length > 0">
+      <li>{{unFinishedLength}}个任务未完成</li>
+      <li class="action">
+        <a :class="{active:visibility!=='unCompleted'&&visibility!=='completed'}" href="#all">所有任务</a>
+        <a :class="{active:visibility==='unCompleted'}" href="#unCompleted">未完成的任务</a>
+        <a :class="{active:visibility==='completed'}" href="#completed">完成的任务</a>
+    </li>
+    </ul>
+    <h3 class="big-title">任务列表：</h3>
+    <div class="tasks">
+      <span class="no-task-tip" v-if="list.length == 0">还没有添加任何任务</span>
+      <ul class="todo-list">
+        <li class="todo" 
+          v-for="item in filterData"
+          :class="{completed:item.isCompleted,editing:item===editValue}"
+        >
+          <div class="view">
+            <input 
+              type="checkbox" 
+              class="toggle"
+              v-model="item.isCompleted"
+            />
+            <label @dblclick="onEdit(item)">{{item.title}}</label>
+            <button class="destroy" @click="onDel(item)"></button>
+          </div>
+          <input 
+            class="edit" 
+            type="text" 
+            v-focus="editValue===item"
+            v-model="item.title"
+            v-on:blur="onEditSuccess(item)"
+            v-on:keyup.enter = "onEditSuccess(item)"
+            v-on:keyup.esc = "onCancle(item)"
+          />
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+<script src="./vue.js"></script>
+<script>
+    var store = {
+      save(key,value){  //es6函数写法
+          window.localStorage.setItem(key,JSON.stringify(value)); //将数据转换为json形式的字符串
+      },
+      fetch(key){
+      return JSON.parse(window.localStorage.getItem(key))||[];
+      //获得的数据是json字符串，需要用json.parse解析一下,若没取到就返回空
+      }
+  }
+  //list取出所有的值//到localStorage中取数据
+  var list = store.fetch("storeData");
+
+  Vue.directive('focus', {
+    update(el, binding) {
+      el.focus();//当选中某个input时自动获得焦点
+      // el.select();
+    }
+  });
+  let vm = new Vue({
+    el: '.main',
+    data: {
+      todo: '',
+      list,
+      editValue:"",//记录正在编辑的数据
+      beforeTitle:"",//记录正在编辑的数据的title
+      visibility:'all'
+    },
+    computed: {
+      'unFinishedLength': function() {
+        return this.list.filter(item => !item.isCompleted).length
+      },
+      filterData(){
+          //过滤的时候有三种情况 all completed unCompleted
+          var filter = {
+              all:function(list){
+                  return list;
+              },
+              completed:function(list){
+                  return list.filter(item=>{
+                      return item.isCompleted;
+                  })
+              },
+              unCompleted:function(list){
+                  return list.filter(item=>{
+                      return !item.isCompleted;
+                  })
+              }
+          }
+          //如果找到了过滤函数，就返回过滤后的数据，如果没有找到就返回所有的数据
+          return filter[this.visibility]?filter[this.visibility](this.list):this.list;
+      }
+    },
+    watch:{
+    //下面的这种方法是浅监控
+    /*list:function(){//监控list这个属性，当这个属性对应的值发生变化就会执行函数
+        store.save("storeData",this.list);
+    }*/
+    //下面的是深度监控
+        list:{
+            handler:function(){
+                store.save("storeData",this.list);
+            },
+            deep:true
+        }
+    },
+    methods: {
+      //添加任务
+      onSend() {
+        if(this.todo==""){return;}
+          this.list.push({
+              title:this.todo,
+              isCompleted:false,
+              isEdit:false
+          });
+          this.todo = "";
+      },
+      //删除任务
+      onDel(item) {
+        var index = this.list.indexOf(item);
+        this.list.splice(index,1);
+      },
+      //编辑任务
+      onEdit(item) {
+        this.beforeTitle = item.title;
+        this.editValue = item;
+      },
+      //编辑完成
+      onEditSuccess(item){
+       this.editValue = '';
+      },
+      //取消编辑
+      onCancle(item) {
+       item.title = this.beforeTitle;
+       this.beforeTitle = '';
+       this.editValue = '';
+      }
+      
+    }
+  });
+
+  function hashFn(){
+        var hash = window.location.hash.slice(1);
+        vm.visibility = hash;
+    }
+    hashFn();
+  window.addEventListener('hashchange',hashFn);
+</script>
+</html>

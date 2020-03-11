@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      box-sizing: border-box;
+    }
+    #app {
+      width: 1000px;
+      margin: 100px auto;
+    }
+    #list {
+      margin-top: 50px;
+      height: 450px;
+    }
+    #list li {
+      float: left;
+      margin-right: 20px;
+      width: 200px;
+      padding: 10px;
+      border: 2px solid #ccc;
+    }
+    #list li.active {
+      border-color: red;
+    }
+    #list li img {
+      width: 100%;
+      height: 300px;
+    }
+    #goToCar {
+      text-decoration: none;
+      display: block;
+      width: 100px;
+      line-height: 30px;
+      text-align: center;
+      border: 1px solid #ccc;
+      background: #dbdbdb;
+    }
+    #car {
+      margin-top: 500px;
+      height: 600px;
+    }
+    #carList li{
+      padding: 7px 10px;
+    }
+    #carList li button {
+      width: 30px;
+      height: 30px;
+    }
+    #carList li input[type=text] {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <my-shop 
+    v-bind:list='list'
+    v-on:get-id = 'getID'
+    v-bind:money = 'money'
+    ></my-shop>
+    <my-car id="car"
+    v-bind:list='payList'
+    v-on:get-val = 'getVal'
+    v-on:del = 'Del'
+    v-on:total-del ='TotalDel'
+    v-on:pay-money = 'payMoney'
+    ></my-car>
+  </div>
+</body>
+<script src="./vue.js"></script>
+<script type="text/x-template" id="shop">
+  <div>
+    <h1 id="pay">选购商品</h1>
+    <hr />
+    <ul id="list">
+      <li v-for="(item, i) in list" 
+      v-bind:class="{active:item.isActive}" 
+      v-on:click="onBuy(i)"
+      >
+        <img v-bind:src="item.url" alt="">
+        <p>{{item.name}}</p>
+        <p>单价: ￥{{item.price}}</p>
+      </li>
+    </ul>
+    <button type="button" v-if="this.money" v-on:click="onPay">待支付{{this.money}}</button>
+    <a href="#car" id="goToCar">去往购物车</a>
+  </div>
+
+</script>
+<script type="text/x-template" id="carComponent">
+  <div>
+    <h1>购物车</h1>
+    <hr />
+    <ul id="carList">
+      <li v-for="(item,i) in list">
+        <input type="checkbox" 
+        v-model="item.isChecked"
+        v-on:change= "send(item.isChecked,i)"
+        >
+        <span>{{item.name}}</span>
+        单价: <span>{{item.price}}</span>
+        <button type="button" v-on:click="onMinus(i)">-</button>
+        <input type="text" v-model="item.count">
+        <button type="button" v-on:click="onPlus(i)">+</button>
+        总价: <span>{{item.total}}</span>
+        <button type="button" style="width: 80px;" v-on:click='onDel(item.name,i)'>删除</button>
+      </li>
+    </ul>
+    <input type="checkbox" id="all" v-model='allChecked'>
+    <label for="all">全选</label>
+    总价: <span>￥{{totalPrice}}</span>
+    <button type="button" v-on:click='onTotalDel'>全部删除</button>
+    <a href="#pay" v-on:click="onPayMoney(totalPrice)">支付</a>
+  </div>
+
+</script>
+<script>
+
+  let list = [
+    {
+      url: 'https://f10.baidu.com/it/u=752933719,2910359121&fm=72',
+      name: 'HUAWEI P30 Pro',
+      price: 3000,
+      total: 3000,
+      count: 1,
+      isActive: false
+    },
+    {
+      url: 'https://f10.baidu.com/it/u=1992504858,2147463847&fm=72',
+      name: 'HUAWEI P40 Pro',
+      price: 4000,
+      total: 4000,
+      count: 1,
+      isActive: false
+    },
+    {
+      url: 'https://f10.baidu.com/it/u=752933719,2910359121&fm=72',
+      name: 'HUAWEI P50 Pro',
+      price: 5000,
+      total: 5000,
+      count: 1,
+      isActive: false
+    },
+    {
+      url: 'https://f10.baidu.com/it/u=1992504858,2147463847&fm=72',
+      name: 'HUAWEI P60 Pro',
+      price: 6000,
+      total: 6000,
+      count: 1,
+      isActive: false
+    }
+  ]
+
+  list.forEach(item => {
+    item.isChecked = true;
+  });
+
+  Vue.component('my-shop', {
+    template: '#shop',
+    props: ["list","money"],
+    methods: {
+        onBuy(i) {
+            this.$emit("get-id",i)
+        },
+        onPay() {
+          if(Math.random()>0.5){
+            alert("支付成功");
+          }else{
+            alert("支付失败");
+          }
+        }
+    },
+  })
+  Vue.component('my-car', {
+    template: '#carComponent',
+    props: ["list"],
+    computed: {
+        "allChecked":{
+            get() {
+                if(this.list.length>0){
+                    return this.list.every(item=>{
+                        return item.isChecked;
+                    })
+                }else {
+                    return false;
+                }
+            },
+            set() {
+              this.list.forEach(item => {
+                item.isChecked = !item.isChecked;
+                item.isActive = !item.isActive;
+              })
+            }
+        },
+        "totalPrice":function(){
+          return this.list.reduce((sum,item)=>{
+            return sum + item.total;
+          },0)
+        }
+    },
+    methods: {
+      send(val,i){
+        this.$emit('get-val',val,i)
+      },
+      onMinus(i){
+        if(this.list[i].count>0){
+          this.list[i].count--;
+        }
+        this.list[i].total = this.list[i].price * this.list[i].count;
+      },
+      onPlus(i) {
+        this.list[i].count++;
+        this.list[i].total = this.list[i].price * this.list[i].count;
+      },
+      onDel(name,i){
+        this.$emit('del',name,i)
+      },
+      onTotalDel(){
+        this.$emit("total-del")
+      },
+      onPayMoney(money){
+        this.$emit("pay-money",money)
+      }
+    }
+  })
+  new Vue({
+    el: '#app',
+    data: {
+      list,
+      payList:[],
+      money: ''
+    },
+    methods: {
+        getID(i){
+            this.list[i].isActive = !this.list[i].isActive;
+            this.payList = this.list.filter(item=>{
+              if(item.isActive){
+                item.isChecked = true;
+              }
+                return item.isActive;
+            })
+        },
+        getVal(val,i){
+          this.list[i].isActive = val;
+        },
+        Del(name,i){
+          this.payList.splice(i,1);
+          console.log(name);
+         this.list.forEach((item,i)=>{
+           if(item.name==name){
+             this.list[i].isActive = false;
+           }
+         }) 
+        },
+        TotalDel(){
+          this.payList = [];
+          this.list.forEach(item=>{
+            item.isActive = false;
+          })
+        },
+        payMoney(money){
+          this.money = money;
+        }
+    }
+  })
+  /**
+    兄弟组件之间的通信，非常非常非常复杂，麻烦。通常会将数据提升，将数据全部放到父级身上，数据要改变，直接通知父组件改变数据
+  */
+</script>
+</html>

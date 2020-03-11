@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <router-link to="/">首页</router-link>
+        <router-link to="/product">产品</router-link>
+        <router-link to="/about">关于</router-link>
+        <router-view></router-view>
+    </div>
+</body>
+<script src="vue.js"></script>
+<script src="vue-router.js"></script>
+<script src="13-cookie封装.html"></script>
+<script>
+    Home = {
+        template:`
+            <div>
+                <h1>我是首页</h1>
+            </div>`
+    }
+    Product = {
+        template:`
+            <div>
+                <h1>我是产品</h1>
+                <router-link to="/product/computer">电脑</router-link>
+                <router-link to="/product/ipad">iPad</router-link>
+                <router-link to="/product/phone">手机</router-link>
+                <router-view></router-view>
+            </div>`
+    }   
+    About = {
+        template:`
+            <div>
+                <h1>我是关于</h1>
+            </div>`
+    }
+    Computer = {
+        template:`
+            <div>
+                <h2>我是电脑</h2>
+            </div>`
+    }
+    iPad = {
+        template:`
+            <div>
+                <h2>我是iPad</h2>
+            </div>`
+    }   
+    Phone = {
+        template:`
+            <div>
+                <h2>我是手机</h2>
+            </div>`
+    }
+    const router = new VueRouter({
+        routes: [
+            {
+                path:"/",
+                component: Home
+            },
+            {
+                path:"/product",
+                redirect:"/product/computer",
+                component: Product,
+                children:[
+                    {
+                        path:'computer',
+                        component: Computer
+                    },
+                    {
+                        path:'ipad',
+                        component: iPad
+                    },
+                    {
+                        path:'phone',
+                        component: Phone
+                    },
+                ]
+            },
+            {
+                path:"/about",
+                component: About
+            },
+        ]
+    })
+
+   new Vue({
+        el:"#app",
+        router
+    })
+</script>
+</html>
